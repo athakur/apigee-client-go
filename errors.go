@@ -2,6 +2,7 @@ package apigee
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -49,10 +50,8 @@ func parseError(resp *http.Response, body []byte) error {
 
 // IsNotFound reports whether err is a 404 Not Found error.
 func IsNotFound(err error) bool {
-	if err == nil {
-		return false
-	}
-	if apiErr, ok := err.(*Error); ok {
+	var apiErr *Error
+	if errors.As(err, &apiErr) {
 		return apiErr.StatusCode == http.StatusNotFound
 	}
 	return false
@@ -60,10 +59,8 @@ func IsNotFound(err error) bool {
 
 // IsConflict reports whether err is a 409 Conflict error.
 func IsConflict(err error) bool {
-	if err == nil {
-		return false
-	}
-	if apiErr, ok := err.(*Error); ok {
+	var apiErr *Error
+	if errors.As(err, &apiErr) {
 		return apiErr.StatusCode == http.StatusConflict
 	}
 	return false
@@ -71,10 +68,8 @@ func IsConflict(err error) bool {
 
 // IsForbidden reports whether err is a 403 Forbidden error.
 func IsForbidden(err error) bool {
-	if err == nil {
-		return false
-	}
-	if apiErr, ok := err.(*Error); ok {
+	var apiErr *Error
+	if errors.As(err, &apiErr) {
 		return apiErr.StatusCode == http.StatusForbidden
 	}
 	return false
@@ -82,10 +77,8 @@ func IsForbidden(err error) bool {
 
 // IsUnauthorized reports whether err is a 401 Unauthorized error.
 func IsUnauthorized(err error) bool {
-	if err == nil {
-		return false
-	}
-	if apiErr, ok := err.(*Error); ok {
+	var apiErr *Error
+	if errors.As(err, &apiErr) {
 		return apiErr.StatusCode == http.StatusUnauthorized
 	}
 	return false

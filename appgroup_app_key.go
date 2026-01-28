@@ -3,6 +3,7 @@ package apigee
 import (
 	"context"
 	"net/http"
+	"net/url"
 )
 
 // AppGroupAppKey represents a credential (key) for an app.
@@ -67,10 +68,10 @@ type AppGroupAppKeyService struct {
 
 // Create creates a new key for an app.
 func (s *AppGroupAppKeyService) Create(ctx context.Context, appGroupName, appName string, key *AppGroupAppKeyCreateRequest) (*AppGroupAppKey, error) {
-	url := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName, "keys")
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName, "keys")
 
 	result := &AppGroupAppKey{}
-	if err := s.client.do(ctx, http.MethodPost, url, key, result); err != nil {
+	if err := s.client.do(ctx, http.MethodPost, endpoint, key, result); err != nil {
 		return nil, err
 	}
 
@@ -79,10 +80,10 @@ func (s *AppGroupAppKeyService) Create(ctx context.Context, appGroupName, appNam
 
 // Get retrieves a key by consumer key.
 func (s *AppGroupAppKeyService) Get(ctx context.Context, appGroupName, appName, consumerKey string) (*AppGroupAppKey, error) {
-	url := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName, "keys", consumerKey)
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName, "keys", consumerKey)
 
 	result := &AppGroupAppKey{}
-	if err := s.client.do(ctx, http.MethodGet, url, nil, result); err != nil {
+	if err := s.client.do(ctx, http.MethodGet, endpoint, nil, result); err != nil {
 		return nil, err
 	}
 
@@ -91,10 +92,10 @@ func (s *AppGroupAppKeyService) Get(ctx context.Context, appGroupName, appName, 
 
 // Update updates an existing key. This can be used to approve/revoke a key or update its API products.
 func (s *AppGroupAppKeyService) Update(ctx context.Context, appGroupName, appName, consumerKey string, key *AppGroupAppKey) (*AppGroupAppKey, error) {
-	url := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName, "keys", consumerKey)
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName, "keys", consumerKey)
 
 	result := &AppGroupAppKey{}
-	if err := s.client.do(ctx, http.MethodPut, url, key, result); err != nil {
+	if err := s.client.do(ctx, http.MethodPut, endpoint, key, result); err != nil {
 		return nil, err
 	}
 
@@ -103,17 +104,17 @@ func (s *AppGroupAppKeyService) Update(ctx context.Context, appGroupName, appNam
 
 // Delete deletes a key.
 func (s *AppGroupAppKeyService) Delete(ctx context.Context, appGroupName, appName, consumerKey string) error {
-	url := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName, "keys", consumerKey)
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName, "keys", consumerKey)
 
-	return s.client.do(ctx, http.MethodDelete, url, nil, nil)
+	return s.client.do(ctx, http.MethodDelete, endpoint, nil, nil)
 }
 
 // UpdateAPIProductStatus updates the approval status of an API product for a specific key.
 func (s *AppGroupAppKeyService) UpdateAPIProductStatus(ctx context.Context, appGroupName, appName, consumerKey, apiProduct, action string) error {
-	url := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName, "keys", consumerKey, "apiproducts", apiProduct)
-	url = url + "?action=" + action
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName, "keys", consumerKey, "apiproducts", apiProduct)
+	endpoint = endpoint + "?action=" + url.QueryEscape(action)
 
-	return s.client.do(ctx, http.MethodPost, url, nil, nil)
+	return s.client.do(ctx, http.MethodPost, endpoint, nil, nil)
 }
 
 // Generate creates a new key for an app where Apigee generates the key/secret.
@@ -137,10 +138,10 @@ func (s *AppGroupAppKeyService) Generate(ctx context.Context, appGroupName, appN
 		KeyExpiresIn: req.KeyExpiresIn,
 	}
 
-	url := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName)
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName)
 
 	result := &AppGroupApp{}
-	if err := s.client.do(ctx, http.MethodPut, url, updateReq, result); err != nil {
+	if err := s.client.do(ctx, http.MethodPut, endpoint, updateReq, result); err != nil {
 		return nil, err
 	}
 

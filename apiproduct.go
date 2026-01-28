@@ -52,10 +52,10 @@ type APIProductService struct {
 
 // Create creates a new API product.
 func (s *APIProductService) Create(ctx context.Context, product *APIProduct) (*APIProduct, error) {
-	url := s.client.buildPath("organizations", s.client.Organization, "apiproducts")
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "apiproducts")
 
 	result := &APIProduct{}
-	if err := s.client.do(ctx, http.MethodPost, url, product, result); err != nil {
+	if err := s.client.do(ctx, http.MethodPost, endpoint, product, result); err != nil {
 		return nil, err
 	}
 
@@ -64,10 +64,10 @@ func (s *APIProductService) Create(ctx context.Context, product *APIProduct) (*A
 
 // Get retrieves an API product by name.
 func (s *APIProductService) Get(ctx context.Context, name string) (*APIProduct, error) {
-	url := s.client.buildPath("organizations", s.client.Organization, "apiproducts", name)
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "apiproducts", name)
 
 	result := &APIProduct{}
-	if err := s.client.do(ctx, http.MethodGet, url, nil, result); err != nil {
+	if err := s.client.do(ctx, http.MethodGet, endpoint, nil, result); err != nil {
 		return nil, err
 	}
 
@@ -76,10 +76,10 @@ func (s *APIProductService) Get(ctx context.Context, name string) (*APIProduct, 
 
 // Update updates an existing API product.
 func (s *APIProductService) Update(ctx context.Context, name string, product *APIProduct) (*APIProduct, error) {
-	url := s.client.buildPath("organizations", s.client.Organization, "apiproducts", name)
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "apiproducts", name)
 
 	result := &APIProduct{}
-	if err := s.client.do(ctx, http.MethodPut, url, product, result); err != nil {
+	if err := s.client.do(ctx, http.MethodPut, endpoint, product, result); err != nil {
 		return nil, err
 	}
 
@@ -88,18 +88,18 @@ func (s *APIProductService) Update(ctx context.Context, name string, product *AP
 
 // Delete deletes an API product.
 func (s *APIProductService) Delete(ctx context.Context, name string) error {
-	url := s.client.buildPath("organizations", s.client.Organization, "apiproducts", name)
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "apiproducts", name)
 
-	return s.client.do(ctx, http.MethodDelete, url, nil, nil)
+	return s.client.do(ctx, http.MethodDelete, endpoint, nil, nil)
 }
 
 // List lists all API products in the organization.
 func (s *APIProductService) List(ctx context.Context, opts *ListOptions) (*APIProductListResponse, error) {
-	url := s.client.buildPath("organizations", s.client.Organization, "apiproducts")
-	url = addQueryParams(url, opts)
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "apiproducts")
+	endpoint = addQueryParams(endpoint, opts)
 
 	result := &APIProductListResponse{}
-	if err := s.client.do(ctx, http.MethodGet, url, nil, result); err != nil {
+	if err := s.client.do(ctx, http.MethodGet, endpoint, nil, result); err != nil {
 		return nil, err
 	}
 

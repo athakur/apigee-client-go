@@ -13,7 +13,7 @@ import (
 
 // buildPath constructs a URL path by joining the base URL with path segments.
 func (c *Client) buildPath(segments ...string) string {
-	var escaped []string
+	escaped := make([]string, 0, len(segments))
 	for _, s := range segments {
 		escaped = append(escaped, url.PathEscape(s))
 	}

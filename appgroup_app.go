@@ -46,10 +46,10 @@ type AppGroupAppService struct {
 
 // Create creates a new app in an app group.
 func (s *AppGroupAppService) Create(ctx context.Context, appGroupName string, app *AppGroupApp) (*AppGroupApp, error) {
-	url := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps")
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps")
 
 	result := &AppGroupApp{}
-	if err := s.client.do(ctx, http.MethodPost, url, app, result); err != nil {
+	if err := s.client.do(ctx, http.MethodPost, endpoint, app, result); err != nil {
 		return nil, err
 	}
 
@@ -58,10 +58,10 @@ func (s *AppGroupAppService) Create(ctx context.Context, appGroupName string, ap
 
 // Get retrieves an app by name from an app group.
 func (s *AppGroupAppService) Get(ctx context.Context, appGroupName, appName string) (*AppGroupApp, error) {
-	url := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName)
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName)
 
 	result := &AppGroupApp{}
-	if err := s.client.do(ctx, http.MethodGet, url, nil, result); err != nil {
+	if err := s.client.do(ctx, http.MethodGet, endpoint, nil, result); err != nil {
 		return nil, err
 	}
 
@@ -70,10 +70,10 @@ func (s *AppGroupAppService) Get(ctx context.Context, appGroupName, appName stri
 
 // Update updates an existing app in an app group.
 func (s *AppGroupAppService) Update(ctx context.Context, appGroupName, appName string, app *AppGroupApp) (*AppGroupApp, error) {
-	url := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName)
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName)
 
 	result := &AppGroupApp{}
-	if err := s.client.do(ctx, http.MethodPut, url, app, result); err != nil {
+	if err := s.client.do(ctx, http.MethodPut, endpoint, app, result); err != nil {
 		return nil, err
 	}
 
@@ -82,18 +82,18 @@ func (s *AppGroupAppService) Update(ctx context.Context, appGroupName, appName s
 
 // Delete deletes an app from an app group.
 func (s *AppGroupAppService) Delete(ctx context.Context, appGroupName, appName string) error {
-	url := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName)
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName)
 
-	return s.client.do(ctx, http.MethodDelete, url, nil, nil)
+	return s.client.do(ctx, http.MethodDelete, endpoint, nil, nil)
 }
 
 // List lists all apps in an app group.
 func (s *AppGroupAppService) List(ctx context.Context, appGroupName string, opts *ListOptions) (*AppGroupAppListResponse, error) {
-	url := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps")
-	url = addQueryParams(url, opts)
+	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps")
+	endpoint = addQueryParams(endpoint, opts)
 
 	result := &AppGroupAppListResponse{}
-	if err := s.client.do(ctx, http.MethodGet, url, nil, result); err != nil {
+	if err := s.client.do(ctx, http.MethodGet, endpoint, nil, result); err != nil {
 		return nil, err
 	}
 
