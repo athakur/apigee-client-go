@@ -307,6 +307,66 @@ entries, err := client.EnvKeyValueMapEntries.List(ctx, "prod", "env-config")
 err = client.EnvKeyValueMapEntries.Delete(ctx, "prod", "env-config", "db-host")
 ```
 
+### Target Servers
+
+Target Servers define backend server endpoints for load balancing and failover. They are environment-scoped resources.
+
+```go
+// Create a target server
+ts, err := client.TargetServers.Create(ctx, "prod", &apigee.TargetServer{
+    Name:        "backend-api",
+    Host:        "api.example.com",
+    Port:        443,
+    Protocol:    "HTTP",
+    IsEnabled:   true,
+    Description: "Primary backend API server",
+    SSLInfo: &apigee.SSLInfo{
+        Enabled: true,
+    },
+})
+
+// Get a target server
+ts, err := client.TargetServers.Get(ctx, "prod", "backend-api")
+
+// Update a target server
+ts.Port = 8443
+ts, err = client.TargetServers.Update(ctx, "prod", "backend-api", ts)
+
+// List target servers (returns names only)
+list, err := client.TargetServers.List(ctx, "prod")
+for _, name := range list.TargetServerNames {
+    fmt.Println(name)
+}
+
+// Delete a target server
+err = client.TargetServers.Delete(ctx, "prod", "backend-api")
+```
+
+#### Target Server with mTLS
+
+```go
+// Create a target server with mutual TLS
+ts, err := client.TargetServers.Create(ctx, "prod", &apigee.TargetServer{
+    Name:      "secure-backend",
+    Host:      "secure.example.com",
+    Port:      443,
+    Protocol:  "HTTP",
+    IsEnabled: true,
+    SSLInfo: &apigee.SSLInfo{
+        Enabled:           true,
+        ClientAuthEnabled: true,
+        KeyStore:          "my-keystore",
+        KeyAlias:          "my-key",
+        TrustStore:        "my-truststore",
+        Protocols:         []string{"TLSv1.2", "TLSv1.3"},
+        CommonName: &apigee.CommonName{
+            Value:         "*.example.com",
+            WildcardMatch: true,
+        },
+    },
+})
+```
+
 ## Error Handling
 
 The library provides helper functions to check for common HTTP error types:
@@ -393,6 +453,9 @@ for {
 | `APIProductRef` | Reference to an API product with approval status |
 | `KeyValueMap` | Key Value Map (KVM) definition |
 | `KeyValueEntry` | Entry (key-value pair) in a KVM |
+| `TargetServer` | Target server definition for backend endpoints |
+| `SSLInfo` | TLS/SSL configuration for target servers |
+| `CommonName` | Certificate common name configuration |
 
 ## API Endpoints
 
@@ -406,6 +469,7 @@ for {
 | Org KVM Entries | `organizations/{org}/keyvaluemaps/{kvm}/entries` |
 | Env KVMs | `organizations/{org}/environments/{env}/keyvaluemaps` |
 | Env KVM Entries | `organizations/{org}/environments/{env}/keyvaluemaps/{kvm}/entries` |
+| Target Servers | `organizations/{org}/environments/{env}/targetservers` |
 
 ## License
 

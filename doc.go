@@ -6,6 +6,7 @@
 //   - App Group Apps
 //   - App Credentials (Keys)
 //   - Key Value Maps (KVMs) at organization and environment levels
+//   - Target Servers (environment-level backend endpoints)
 //
 // # Authentication
 //
@@ -154,6 +155,34 @@
 //	entry, err := client.EnvKeyValueMapEntries.Get(ctx, "prod", "env-config", "db-host")
 //	entry, err = client.EnvKeyValueMapEntries.Update(ctx, "prod", "env-config", "db-host", entry)
 //	err = client.EnvKeyValueMapEntries.Delete(ctx, "prod", "env-config", "db-host")
+//
+// # Working with Target Servers
+//
+// Target Servers define backend endpoints for load balancing and failover:
+//
+//	// Create a target server
+//	ts, err := client.TargetServers.Create(ctx, "prod", &apigee.TargetServer{
+//	    Name:      "backend-api",
+//	    Host:      "api.example.com",
+//	    Port:      443,
+//	    Protocol:  "HTTP",
+//	    IsEnabled: true,
+//	    SSLInfo: &apigee.SSLInfo{
+//	        Enabled: true,
+//	    },
+//	})
+//
+//	// List target servers (returns names only)
+//	list, err := client.TargetServers.List(ctx, "prod")
+//	for _, name := range list.TargetServerNames {
+//	    fmt.Println(name)
+//	}
+//
+//	// Get, update, delete
+//	ts, err := client.TargetServers.Get(ctx, "prod", "backend-api")
+//	ts.Port = 8443
+//	ts, err = client.TargetServers.Update(ctx, "prod", "backend-api", ts)
+//	err = client.TargetServers.Delete(ctx, "prod", "backend-api")
 //
 // # Error Handling
 //

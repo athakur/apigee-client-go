@@ -26,8 +26,11 @@ func main() {
 	appName := "test-app-" + suffix
 	kvmName := "test-kvm-" + suffix
 
+	targetServerName := "test-ts-" + suffix
+	envName := "eval" // Default environment for testing
+
 	// Track what we've created for cleanup
-	var productCreated, appGroupCreated, appCreated, kvmCreated bool
+	var productCreated, appGroupCreated, appCreated, kvmCreated, targetServerCreated bool
 
 	// Cleanup function
 	defer func() {
@@ -60,6 +63,14 @@ func main() {
 			fmt.Printf("Deleting KVM: %s\n", kvmName)
 			if err := client.KeyValueMaps.Delete(ctx, kvmName); err != nil {
 				fmt.Printf("  Warning: failed to delete KVM: %v\n", err)
+			} else {
+				fmt.Println("  Deleted successfully")
+			}
+		}
+		if targetServerCreated {
+			fmt.Printf("Deleting Target Server: %s\n", targetServerName)
+			if err := client.TargetServers.Delete(ctx, envName, targetServerName); err != nil {
+				fmt.Printf("  Warning: failed to delete target server: %v\n", err)
 			} else {
 				fmt.Println("  Deleted successfully")
 			}
@@ -291,6 +302,65 @@ func main() {
 		log.Fatalf("Failed to delete KVM entry: %v", err)
 	}
 	fmt.Println("Deleted KVM entry successfully")
+
+	// ==================== Target Server Tests ====================
+
+	// 21. Create Target Server
+	fmt.Println("\n--- Create Target Server ---")
+	ts, err := client.TargetServers.Create(ctx, envName, &apigee.TargetServer{
+		Name:        targetServerName,
+		Host:        "api.example.com",
+		Port:        443,
+		Protocol:    "HTTP",
+		IsEnabled:   true,
+		Description: "Test target server for Go client testing",
+		SSLInfo: &apigee.SSLInfo{
+			Enabled: true,
+		},
+	})
+	if err != nil {
+		log.Fatalf("Failed to create target server: %v", err)
+	}
+	targetServerCreated = true
+	fmt.Printf("Created target server: %s (Host: %s, Port: %d)\n", ts.Name, ts.Host, ts.Port)
+
+	// 22. Get Target Server
+	fmt.Println("\n--- Get Target Server ---")
+	ts, err = client.TargetServers.Get(ctx, envName, targetServerName)
+	if err != nil {
+		log.Fatalf("Failed to get target server: %v", err)
+	}
+	fmt.Printf("Got target server: %s, Host: %s, Port: %d, Enabled: %v\n", ts.Name, ts.Host, ts.Port, ts.IsEnabled)
+
+	// 23. List Target Servers
+	fmt.Println("\n--- List Target Servers ---")
+	tsList, err := client.TargetServers.List(ctx, envName)
+	if err != nil {
+		log.Fatalf("Failed to list target servers: %v", err)
+	}
+	fmt.Printf("Found %d target servers\n", len(tsList.TargetServerNames))
+	for _, name := range tsList.TargetServerNames {
+		fmt.Printf("  - %s\n", name)
+	}
+
+	// 24. Update Target Server
+	fmt.Println("\n--- Update Target Server ---")
+	ts.Port = 8443
+	ts.Description = "Updated test target server"
+	ts, err = client.TargetServers.Update(ctx, envName, targetServerName, ts)
+	if err != nil {
+		log.Fatalf("Failed to update target server: %v", err)
+	}
+	fmt.Printf("Updated target server: %s, Port: %d, Description: %s\n", ts.Name, ts.Port, ts.Description)
+
+	// 25. Delete Target Server
+	fmt.Println("\n--- Delete Target Server ---")
+	err = client.TargetServers.Delete(ctx, envName, targetServerName)
+	if err != nil {
+		log.Fatalf("Failed to delete target server: %v", err)
+	}
+	targetServerCreated = false
+	fmt.Println("Deleted target server successfully")
 
 	fmt.Println("\n--- All tests passed! ---")
 }

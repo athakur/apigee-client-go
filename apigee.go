@@ -40,6 +40,7 @@ type Client struct {
 	KeyValueMapEntries    *KeyValueMapEntryService
 	EnvKeyValueMaps       *EnvKeyValueMapService
 	EnvKeyValueMapEntries *EnvKeyValueMapEntryService
+	TargetServers         *TargetServerService
 }
 
 // Attribute represents a name-value attribute.
@@ -96,6 +97,7 @@ func NewClient(ctx context.Context, organization string, opts ...ClientOption) (
 	c.KeyValueMapEntries = &KeyValueMapEntryService{client: c}
 	c.EnvKeyValueMaps = &EnvKeyValueMapService{client: c}
 	c.EnvKeyValueMapEntries = &EnvKeyValueMapEntryService{client: c}
+	c.TargetServers = &TargetServerService{client: c}
 
 	return c, nil
 }
