@@ -5,6 +5,7 @@
 //   - App Groups
 //   - App Group Apps
 //   - App Credentials (Keys)
+//   - Key Value Maps (KVMs) at organization and environment levels
 //
 // # Authentication
 //
@@ -114,6 +115,45 @@
 //	key, err := client.AppGroupAppKeys.Get(ctx, "my-group", "my-app", "consumer-key")
 //	key, err = client.AppGroupAppKeys.Update(ctx, "my-group", "my-app", "consumer-key", key)
 //	err = client.AppGroupAppKeys.Delete(ctx, "my-group", "my-app", "consumer-key")
+//
+// # Working with Key Value Maps (KVMs)
+//
+// KVMs store configuration data at organization or environment level:
+//
+//	// Organization-level KVM
+//	kvm, err := client.KeyValueMaps.Create(ctx, &apigee.KeyValueMap{
+//	    Name:      "my-config",
+//	    Encrypted: true,
+//	})
+//
+//	// Add entry to org KVM
+//	entry, err := client.KeyValueMapEntries.Create(ctx, "my-config", &apigee.KeyValueEntry{
+//	    Name:  "api-key",
+//	    Value: "secret123",
+//	})
+//
+//	// Get, update, delete entries
+//	entry, err := client.KeyValueMapEntries.Get(ctx, "my-config", "api-key")
+//	entry, err = client.KeyValueMapEntries.Update(ctx, "my-config", "api-key", entry)
+//	err = client.KeyValueMapEntries.Delete(ctx, "my-config", "api-key")
+//
+//	// Environment-level KVM
+//	kvm, err := client.EnvKeyValueMaps.Create(ctx, "prod", &apigee.KeyValueMap{
+//	    Name:      "env-config",
+//	    Encrypted: true,
+//	})
+//
+//	// Add entry to env KVM
+//	entry, err := client.EnvKeyValueMapEntries.Create(ctx, "prod", "env-config", &apigee.KeyValueEntry{
+//	    Name:  "db-host",
+//	    Value: "localhost:5432",
+//	})
+//
+//	// List, get, update, delete env KVM entries
+//	entries, err := client.EnvKeyValueMapEntries.List(ctx, "prod", "env-config")
+//	entry, err := client.EnvKeyValueMapEntries.Get(ctx, "prod", "env-config", "db-host")
+//	entry, err = client.EnvKeyValueMapEntries.Update(ctx, "prod", "env-config", "db-host", entry)
+//	err = client.EnvKeyValueMapEntries.Delete(ctx, "prod", "env-config", "db-host")
 //
 // # Error Handling
 //

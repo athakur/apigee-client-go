@@ -212,6 +212,101 @@ err = client.AppGroupAppKeys.UpdateAPIProductStatus(ctx, "my-group", "my-app",
 err = client.AppGroupAppKeys.Delete(ctx, "my-group", "my-app", "consumer-key")
 ```
 
+### Key Value Maps (KVMs)
+
+Key Value Maps store configuration data at organization or environment level.
+
+#### Organization-Level KVMs
+
+```go
+// Create an organization-level KVM
+kvm, err := client.KeyValueMaps.Create(ctx, &apigee.KeyValueMap{
+    Name:      "my-config",
+    Encrypted: true,
+})
+
+// Get a KVM
+kvm, err := client.KeyValueMaps.Get(ctx, "my-config")
+
+// List all KVMs (returns names only)
+kvms, err := client.KeyValueMaps.List(ctx)
+for _, name := range kvms.KeyValueMapNames {
+    fmt.Println(name)
+}
+
+// Delete a KVM
+err = client.KeyValueMaps.Delete(ctx, "my-config")
+```
+
+#### Organization-Level KVM Entries
+
+```go
+// Add an entry to a KVM
+entry, err := client.KeyValueMapEntries.Create(ctx, "my-config", &apigee.KeyValueEntry{
+    Name:  "api-key",
+    Value: "secret123",
+})
+
+// Get an entry
+entry, err := client.KeyValueMapEntries.Get(ctx, "my-config", "api-key")
+
+// Update an entry
+entry, err = client.KeyValueMapEntries.Update(ctx, "my-config", "api-key", &apigee.KeyValueEntry{
+    Name:  "api-key",
+    Value: "new-secret456",
+})
+
+// List all entries in a KVM
+entries, err := client.KeyValueMapEntries.List(ctx, "my-config")
+
+// Delete an entry
+err = client.KeyValueMapEntries.Delete(ctx, "my-config", "api-key")
+```
+
+#### Environment-Level KVMs
+
+```go
+// Create an environment-level KVM
+kvm, err := client.EnvKeyValueMaps.Create(ctx, "prod", &apigee.KeyValueMap{
+    Name:      "env-config",
+    Encrypted: true,
+})
+
+// Get an environment KVM
+kvm, err := client.EnvKeyValueMaps.Get(ctx, "prod", "env-config")
+
+// List all KVMs in an environment
+kvms, err := client.EnvKeyValueMaps.List(ctx, "prod")
+
+// Delete an environment KVM
+err = client.EnvKeyValueMaps.Delete(ctx, "prod", "env-config")
+```
+
+#### Environment-Level KVM Entries
+
+```go
+// Add an entry to an environment KVM
+entry, err := client.EnvKeyValueMapEntries.Create(ctx, "prod", "env-config", &apigee.KeyValueEntry{
+    Name:  "db-host",
+    Value: "localhost:5432",
+})
+
+// Get an entry
+entry, err := client.EnvKeyValueMapEntries.Get(ctx, "prod", "env-config", "db-host")
+
+// Update an entry
+entry, err = client.EnvKeyValueMapEntries.Update(ctx, "prod", "env-config", "db-host", &apigee.KeyValueEntry{
+    Name:  "db-host",
+    Value: "db.example.com:5432",
+})
+
+// List all entries in an environment KVM
+entries, err := client.EnvKeyValueMapEntries.List(ctx, "prod", "env-config")
+
+// Delete an entry
+err = client.EnvKeyValueMapEntries.Delete(ctx, "prod", "env-config", "db-host")
+```
+
 ## Error Handling
 
 The library provides helper functions to check for common HTTP error types:
@@ -296,6 +391,8 @@ for {
 | `AppGroupApp` | App within an app group |
 | `AppGroupAppKey` | Credential (key/secret) for an app |
 | `APIProductRef` | Reference to an API product with approval status |
+| `KeyValueMap` | Key Value Map (KVM) definition |
+| `KeyValueEntry` | Entry (key-value pair) in a KVM |
 
 ## API Endpoints
 
@@ -305,6 +402,10 @@ for {
 | App Groups | `organizations/{org}/appgroups` |
 | App Group Apps | `organizations/{org}/appgroups/{group}/apps` |
 | App Keys | `organizations/{org}/appgroups/{group}/apps/{app}/keys` |
+| Org KVMs | `organizations/{org}/keyvaluemaps` |
+| Org KVM Entries | `organizations/{org}/keyvaluemaps/{kvm}/entries` |
+| Env KVMs | `organizations/{org}/environments/{env}/keyvaluemaps` |
+| Env KVM Entries | `organizations/{org}/environments/{env}/keyvaluemaps/{kvm}/entries` |
 
 ## License
 

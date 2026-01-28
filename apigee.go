@@ -32,10 +32,14 @@ type Client struct {
 	tokenSource oauth2.TokenSource
 
 	// Services
-	AppGroups       *AppGroupService
-	AppGroupApps    *AppGroupAppService
-	AppGroupAppKeys *AppGroupAppKeyService
-	APIProducts     *APIProductService
+	AppGroups             *AppGroupService
+	AppGroupApps          *AppGroupAppService
+	AppGroupAppKeys       *AppGroupAppKeyService
+	APIProducts           *APIProductService
+	KeyValueMaps          *KeyValueMapService
+	KeyValueMapEntries    *KeyValueMapEntryService
+	EnvKeyValueMaps       *EnvKeyValueMapService
+	EnvKeyValueMapEntries *EnvKeyValueMapEntryService
 }
 
 // Attribute represents a name-value attribute.
@@ -88,6 +92,10 @@ func NewClient(ctx context.Context, organization string, opts ...ClientOption) (
 	c.AppGroupApps = &AppGroupAppService{client: c}
 	c.AppGroupAppKeys = &AppGroupAppKeyService{client: c}
 	c.APIProducts = &APIProductService{client: c}
+	c.KeyValueMaps = &KeyValueMapService{client: c}
+	c.KeyValueMapEntries = &KeyValueMapEntryService{client: c}
+	c.EnvKeyValueMaps = &EnvKeyValueMapService{client: c}
+	c.EnvKeyValueMapEntries = &EnvKeyValueMapEntryService{client: c}
 
 	return c, nil
 }

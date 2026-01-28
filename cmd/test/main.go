@@ -24,9 +24,10 @@ func main() {
 	productName := "test-product-" + suffix
 	appGroupName := "test-appgroup-" + suffix
 	appName := "test-app-" + suffix
+	kvmName := "test-kvm-" + suffix
 
 	// Track what we've created for cleanup
-	var productCreated, appGroupCreated, appCreated bool
+	var productCreated, appGroupCreated, appCreated, kvmCreated bool
 
 	// Cleanup function
 	defer func() {
@@ -51,6 +52,14 @@ func main() {
 			fmt.Printf("Deleting API product: %s\n", productName)
 			if err := client.APIProducts.Delete(ctx, productName); err != nil {
 				fmt.Printf("  Warning: failed to delete product: %v\n", err)
+			} else {
+				fmt.Println("  Deleted successfully")
+			}
+		}
+		if kvmCreated {
+			fmt.Printf("Deleting KVM: %s\n", kvmName)
+			if err := client.KeyValueMaps.Delete(ctx, kvmName); err != nil {
+				fmt.Printf("  Warning: failed to delete KVM: %v\n", err)
 			} else {
 				fmt.Println("  Deleted successfully")
 			}
@@ -200,6 +209,88 @@ func main() {
 		log.Fatalf("Failed to delete custom key: %v", err)
 	}
 	fmt.Println("Deleted custom key successfully")
+
+	// ==================== KVM Tests ====================
+
+	// 13. Create Organization-level KVM
+	fmt.Println("\n--- Create Organization KVM ---")
+	kvm, err := client.KeyValueMaps.Create(ctx, &apigee.KeyValueMap{
+		Name:      kvmName,
+		Encrypted: true,
+	})
+	if err != nil {
+		log.Fatalf("Failed to create KVM: %v", err)
+	}
+	kvmCreated = true
+	fmt.Printf("Created KVM: %s (Encrypted: %v)\n", kvm.Name, kvm.Encrypted)
+
+	// 14. Get Organization-level KVM
+	fmt.Println("\n--- Get Organization KVM ---")
+	kvm, err = client.KeyValueMaps.Get(ctx, kvmName)
+	if err != nil {
+		log.Fatalf("Failed to get KVM: %v", err)
+	}
+	fmt.Printf("Got KVM: %s\n", kvm.Name)
+
+	// 15. List Organization-level KVMs
+	fmt.Println("\n--- List Organization KVMs ---")
+	kvms, err := client.KeyValueMaps.List(ctx)
+	if err != nil {
+		log.Fatalf("Failed to list KVMs: %v", err)
+	}
+	fmt.Printf("Found %d KVMs\n", len(kvms.KeyValueMapNames))
+	for _, name := range kvms.KeyValueMapNames {
+		fmt.Printf("  - %s\n", name)
+	}
+
+	// 16. Create KVM Entry
+	fmt.Println("\n--- Create KVM Entry ---")
+	entry, err := client.KeyValueMapEntries.Create(ctx, kvmName, &apigee.KeyValueEntry{
+		Name:  "test-key",
+		Value: "test-value-123",
+	})
+	if err != nil {
+		log.Fatalf("Failed to create KVM entry: %v", err)
+	}
+	fmt.Printf("Created entry: %s = %s\n", entry.Name, entry.Value)
+
+	// 17. Get KVM Entry
+	fmt.Println("\n--- Get KVM Entry ---")
+	entry, err = client.KeyValueMapEntries.Get(ctx, kvmName, "test-key")
+	if err != nil {
+		log.Fatalf("Failed to get KVM entry: %v", err)
+	}
+	fmt.Printf("Got entry: %s = %s\n", entry.Name, entry.Value)
+
+	// 18. Update KVM Entry
+	fmt.Println("\n--- Update KVM Entry ---")
+	entry, err = client.KeyValueMapEntries.Update(ctx, kvmName, "test-key", &apigee.KeyValueEntry{
+		Name:  "test-key",
+		Value: "updated-value-456",
+	})
+	if err != nil {
+		log.Fatalf("Failed to update KVM entry: %v", err)
+	}
+	fmt.Printf("Updated entry: %s = %s\n", entry.Name, entry.Value)
+
+	// 19. List KVM Entries
+	fmt.Println("\n--- List KVM Entries ---")
+	kvmEntries, err := client.KeyValueMapEntries.List(ctx, kvmName)
+	if err != nil {
+		log.Fatalf("Failed to list KVM entries: %v", err)
+	}
+	fmt.Printf("Found %d entries\n", len(kvmEntries.KeyValueEntries))
+	for _, e := range kvmEntries.KeyValueEntries {
+		fmt.Printf("  - %s = %s\n", e.Name, e.Value)
+	}
+
+	// 20. Delete KVM Entry
+	fmt.Println("\n--- Delete KVM Entry ---")
+	err = client.KeyValueMapEntries.Delete(ctx, kvmName, "test-key")
+	if err != nil {
+		log.Fatalf("Failed to delete KVM entry: %v", err)
+	}
+	fmt.Println("Deleted KVM entry successfully")
 
 	fmt.Println("\n--- All tests passed! ---")
 }
