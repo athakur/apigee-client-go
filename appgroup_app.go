@@ -2,7 +2,6 @@ package apigee
 
 import (
 	"context"
-	"net/http"
 )
 
 // AppGroupApp represents an app within an app group.
@@ -46,56 +45,25 @@ type AppGroupAppService struct {
 
 // Create creates a new app in an app group.
 func (s *AppGroupAppService) Create(ctx context.Context, appGroupName string, app *AppGroupApp) (*AppGroupApp, error) {
-	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps")
-
-	result := &AppGroupApp{}
-	if err := s.client.do(ctx, http.MethodPost, endpoint, app, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return doCreate[AppGroupApp](ctx, s.client, s.client.orgPath("appgroups", appGroupName, "apps"), app)
 }
 
 // Get retrieves an app by name from an app group.
 func (s *AppGroupAppService) Get(ctx context.Context, appGroupName, appName string) (*AppGroupApp, error) {
-	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName)
-
-	result := &AppGroupApp{}
-	if err := s.client.do(ctx, http.MethodGet, endpoint, nil, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return doGet[AppGroupApp](ctx, s.client, s.client.orgPath("appgroups", appGroupName, "apps", appName))
 }
 
 // Update updates an existing app in an app group.
 func (s *AppGroupAppService) Update(ctx context.Context, appGroupName, appName string, app *AppGroupApp) (*AppGroupApp, error) {
-	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName)
-
-	result := &AppGroupApp{}
-	if err := s.client.do(ctx, http.MethodPut, endpoint, app, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return doUpdate[AppGroupApp](ctx, s.client, s.client.orgPath("appgroups", appGroupName, "apps", appName), app)
 }
 
 // Delete deletes an app from an app group.
 func (s *AppGroupAppService) Delete(ctx context.Context, appGroupName, appName string) error {
-	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps", appName)
-
-	return s.client.do(ctx, http.MethodDelete, endpoint, nil, nil)
+	return doDelete(ctx, s.client, s.client.orgPath("appgroups", appGroupName, "apps", appName))
 }
 
 // List lists all apps in an app group.
 func (s *AppGroupAppService) List(ctx context.Context, appGroupName string, opts *ListOptions) (*AppGroupAppListResponse, error) {
-	endpoint := s.client.buildPath("organizations", s.client.Organization, "appgroups", appGroupName, "apps")
-	endpoint = addQueryParams(endpoint, opts)
-
-	result := &AppGroupAppListResponse{}
-	if err := s.client.do(ctx, http.MethodGet, endpoint, nil, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return doList[AppGroupAppListResponse](ctx, s.client, s.client.orgPath("appgroups", appGroupName, "apps"), opts)
 }

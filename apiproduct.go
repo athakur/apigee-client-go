@@ -2,7 +2,6 @@ package apigee
 
 import (
 	"context"
-	"net/http"
 )
 
 // APIProduct represents an Apigee API product.
@@ -52,56 +51,25 @@ type APIProductService struct {
 
 // Create creates a new API product.
 func (s *APIProductService) Create(ctx context.Context, product *APIProduct) (*APIProduct, error) {
-	endpoint := s.client.buildPath("organizations", s.client.Organization, "apiproducts")
-
-	result := &APIProduct{}
-	if err := s.client.do(ctx, http.MethodPost, endpoint, product, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return doCreate[APIProduct](ctx, s.client, s.client.orgPath("apiproducts"), product)
 }
 
 // Get retrieves an API product by name.
 func (s *APIProductService) Get(ctx context.Context, name string) (*APIProduct, error) {
-	endpoint := s.client.buildPath("organizations", s.client.Organization, "apiproducts", name)
-
-	result := &APIProduct{}
-	if err := s.client.do(ctx, http.MethodGet, endpoint, nil, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return doGet[APIProduct](ctx, s.client, s.client.orgPath("apiproducts", name))
 }
 
 // Update updates an existing API product.
 func (s *APIProductService) Update(ctx context.Context, name string, product *APIProduct) (*APIProduct, error) {
-	endpoint := s.client.buildPath("organizations", s.client.Organization, "apiproducts", name)
-
-	result := &APIProduct{}
-	if err := s.client.do(ctx, http.MethodPut, endpoint, product, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return doUpdate[APIProduct](ctx, s.client, s.client.orgPath("apiproducts", name), product)
 }
 
 // Delete deletes an API product.
 func (s *APIProductService) Delete(ctx context.Context, name string) error {
-	endpoint := s.client.buildPath("organizations", s.client.Organization, "apiproducts", name)
-
-	return s.client.do(ctx, http.MethodDelete, endpoint, nil, nil)
+	return doDelete(ctx, s.client, s.client.orgPath("apiproducts", name))
 }
 
 // List lists all API products in the organization.
 func (s *APIProductService) List(ctx context.Context, opts *ListOptions) (*APIProductListResponse, error) {
-	endpoint := s.client.buildPath("organizations", s.client.Organization, "apiproducts")
-	endpoint = addQueryParams(endpoint, opts)
-
-	result := &APIProductListResponse{}
-	if err := s.client.do(ctx, http.MethodGet, endpoint, nil, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return doList[APIProductListResponse](ctx, s.client, s.client.orgPath("apiproducts"), opts)
 }

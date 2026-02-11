@@ -94,6 +94,62 @@ func (c *Client) do(ctx context.Context, method, urlStr string, reqBody, v inter
 	return nil
 }
 
+// orgPath builds a URL path prefixed with organizations/{org}.
+func (c *Client) orgPath(segments ...string) string {
+	return c.buildPath(append([]string{"organizations", c.Organization}, segments...)...)
+}
+
+// envPath builds a URL path prefixed with organizations/{org}/environments/{env}.
+func (c *Client) envPath(envName string, segments ...string) string {
+	return c.buildPath(append([]string{"organizations", c.Organization, "environments", envName}, segments...)...)
+}
+
+// doCreate performs a POST request and unmarshals the response into a new T.
+func doCreate[T any](ctx context.Context, c *Client, endpoint string, body interface{}) (*T, error) {
+	result := new(T)
+	if err := c.do(ctx, http.MethodPost, endpoint, body, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// doGet performs a GET request and unmarshals the response into a new T.
+func doGet[T any](ctx context.Context, c *Client, endpoint string) (*T, error) {
+	result := new(T)
+	if err := c.do(ctx, http.MethodGet, endpoint, nil, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// doUpdate performs a PUT request and unmarshals the response into a new T.
+func doUpdate[T any](ctx context.Context, c *Client, endpoint string, body interface{}) (*T, error) {
+	result := new(T)
+	if err := c.do(ctx, http.MethodPut, endpoint, body, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// doDelete performs a DELETE request with no response body.
+func doDelete(ctx context.Context, c *Client, endpoint string) error {
+	return c.do(ctx, http.MethodDelete, endpoint, nil, nil)
+}
+
+// doList performs a GET request with optional query parameters and unmarshals the response into a new T.
+func doList[T any](ctx context.Context, c *Client, endpoint string, opts *ListOptions) (*T, error) {
+	return doGet[T](ctx, c, addQueryParams(endpoint, opts))
+}
+
+// doListNames performs a GET request that returns a JSON array of strings.
+func doListNames(ctx context.Context, c *Client, endpoint string) ([]string, error) {
+	var names []string
+	if err := c.do(ctx, http.MethodGet, endpoint, nil, &names); err != nil {
+		return nil, err
+	}
+	return names, nil
+}
+
 // addQueryParams adds query parameters to a URL string.
 func addQueryParams(urlStr string, opts *ListOptions) string {
 	if opts == nil {

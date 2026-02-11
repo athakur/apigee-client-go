@@ -48,38 +48,23 @@ func parseError(resp *http.Response, body []byte) error {
 	return apiErr
 }
 
-// IsNotFound reports whether err is a 404 Not Found error.
-func IsNotFound(err error) bool {
+// isStatusCode reports whether err is an API error with the given HTTP status code.
+func isStatusCode(err error, code int) bool {
 	var apiErr *Error
 	if errors.As(err, &apiErr) {
-		return apiErr.StatusCode == http.StatusNotFound
+		return apiErr.StatusCode == code
 	}
 	return false
 }
+
+// IsNotFound reports whether err is a 404 Not Found error.
+func IsNotFound(err error) bool { return isStatusCode(err, http.StatusNotFound) }
 
 // IsConflict reports whether err is a 409 Conflict error.
-func IsConflict(err error) bool {
-	var apiErr *Error
-	if errors.As(err, &apiErr) {
-		return apiErr.StatusCode == http.StatusConflict
-	}
-	return false
-}
+func IsConflict(err error) bool { return isStatusCode(err, http.StatusConflict) }
 
 // IsForbidden reports whether err is a 403 Forbidden error.
-func IsForbidden(err error) bool {
-	var apiErr *Error
-	if errors.As(err, &apiErr) {
-		return apiErr.StatusCode == http.StatusForbidden
-	}
-	return false
-}
+func IsForbidden(err error) bool { return isStatusCode(err, http.StatusForbidden) }
 
 // IsUnauthorized reports whether err is a 401 Unauthorized error.
-func IsUnauthorized(err error) bool {
-	var apiErr *Error
-	if errors.As(err, &apiErr) {
-		return apiErr.StatusCode == http.StatusUnauthorized
-	}
-	return false
-}
+func IsUnauthorized(err error) bool { return isStatusCode(err, http.StatusUnauthorized) }

@@ -3,7 +3,6 @@ package apigee
 import (
 	"context"
 	"fmt"
-	"net/http"
 )
 
 // TargetServer represents an Apigee Target Server.
@@ -86,27 +85,12 @@ func (s *TargetServerService) Create(ctx context.Context, envName string, ts *Ta
 	if err := ts.Validate(); err != nil {
 		return nil, err
 	}
-
-	endpoint := s.client.buildPath("organizations", s.client.Organization, "environments", envName, "targetservers")
-
-	result := &TargetServer{}
-	if err := s.client.do(ctx, http.MethodPost, endpoint, ts, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return doCreate[TargetServer](ctx, s.client, s.client.envPath(envName, "targetservers"), ts)
 }
 
 // Get retrieves a target server by name from the specified environment.
 func (s *TargetServerService) Get(ctx context.Context, envName, name string) (*TargetServer, error) {
-	endpoint := s.client.buildPath("organizations", s.client.Organization, "environments", envName, "targetservers", name)
-
-	result := &TargetServer{}
-	if err := s.client.do(ctx, http.MethodGet, endpoint, nil, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return doGet[TargetServer](ctx, s.client, s.client.envPath(envName, "targetservers", name))
 }
 
 // Update updates a target server in the specified environment.
@@ -114,33 +98,20 @@ func (s *TargetServerService) Update(ctx context.Context, envName, name string, 
 	if err := ts.Validate(); err != nil {
 		return nil, err
 	}
-
-	endpoint := s.client.buildPath("organizations", s.client.Organization, "environments", envName, "targetservers", name)
-
-	result := &TargetServer{}
-	if err := s.client.do(ctx, http.MethodPut, endpoint, ts, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return doUpdate[TargetServer](ctx, s.client, s.client.envPath(envName, "targetservers", name), ts)
 }
 
 // Delete deletes a target server from the specified environment.
 func (s *TargetServerService) Delete(ctx context.Context, envName, name string) error {
-	endpoint := s.client.buildPath("organizations", s.client.Organization, "environments", envName, "targetservers", name)
-
-	return s.client.do(ctx, http.MethodDelete, endpoint, nil, nil)
+	return doDelete(ctx, s.client, s.client.envPath(envName, "targetservers", name))
 }
 
 // List lists all target servers in the specified environment.
 // Note: The target server list API does not support pagination and returns only names.
 func (s *TargetServerService) List(ctx context.Context, envName string) (*TargetServerListResponse, error) {
-	endpoint := s.client.buildPath("organizations", s.client.Organization, "environments", envName, "targetservers")
-
-	var names []string
-	if err := s.client.do(ctx, http.MethodGet, endpoint, nil, &names); err != nil {
+	names, err := doListNames(ctx, s.client, s.client.envPath(envName, "targetservers"))
+	if err != nil {
 		return nil, err
 	}
-
 	return &TargetServerListResponse{TargetServerNames: names}, nil
 }
