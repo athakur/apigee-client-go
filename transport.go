@@ -40,6 +40,9 @@ func (c *Client) newRequest(ctx context.Context, method, urlStr string, body int
 		req.Header.Set("Content-Type", "application/json")
 	}
 	req.Header.Set("Accept", "application/json")
+	if c.userAgent != "" {
+		req.Header.Set("User-Agent", c.userAgent)
+	}
 
 	return req, nil
 }
@@ -61,9 +64,13 @@ func (c *Client) doRequest(req *http.Request) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
+	limitedReader := io.LimitReader(resp.Body, c.maxResponseBytes+1)
+	body, err := io.ReadAll(limitedReader)
 	if err != nil {
 		return nil, fmt.Errorf("apigee: failed to read response body: %w", err)
+	}
+	if int64(len(body)) > c.maxResponseBytes {
+		return nil, fmt.Errorf("apigee: response body exceeds maximum allowed size of %d bytes", c.maxResponseBytes)
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
@@ -74,7 +81,16 @@ func (c *Client) doRequest(req *http.Request) ([]byte, error) {
 }
 
 // do executes an HTTP request and unmarshals the response into v.
+// If the context has no deadline and the client has a requestTimeout configured,
+// a timeout is applied automatically. Callers can override per-call by passing
+// a context created with context.WithTimeout.
 func (c *Client) do(ctx context.Context, method, urlStr string, reqBody, v interface{}) error {
+	if _, hasDeadline := ctx.Deadline(); !hasDeadline && c.requestTimeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, c.requestTimeout)
+		defer cancel()
+	}
+
 	req, err := c.newRequest(ctx, method, urlStr, reqBody)
 	if err != nil {
 		return err

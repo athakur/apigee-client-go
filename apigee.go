@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -15,6 +16,17 @@ const (
 
 	// CloudPlatformScope is the OAuth2 scope required for Apigee API access.
 	CloudPlatformScope = "https://www.googleapis.com/auth/cloud-platform"
+
+	// DefaultMaxResponseBytes is the maximum response body size (10 MB).
+	DefaultMaxResponseBytes int64 = 10 * 1024 * 1024
+
+	// defaultUserAgent is the User-Agent header sent with all requests.
+	defaultUserAgent = "apigee-client-go"
+
+	// DefaultRequestTimeout is the default per-request timeout.
+	// It applies when the caller's context has no deadline.
+	// Callers can override per-call with context.WithTimeout.
+	DefaultRequestTimeout = 60 * time.Second
 )
 
 // Client is the Apigee API client.
@@ -30,6 +42,16 @@ type Client struct {
 
 	// tokenSource is the OAuth2 token source for authentication.
 	tokenSource oauth2.TokenSource
+
+	// maxResponseBytes is the maximum allowed response body size in bytes.
+	maxResponseBytes int64
+
+	// userAgent is the User-Agent header sent with all requests.
+	userAgent string
+
+	// requestTimeout is the default per-request timeout applied when the
+	// caller's context has no deadline. Zero means no timeout.
+	requestTimeout time.Duration
 
 	// Services
 	AppGroups             *AppGroupService
@@ -69,9 +91,12 @@ func NewClient(ctx context.Context, organization string, opts ...ClientOption) (
 	}
 
 	c := &Client{
-		Organization: organization,
-		BaseURL:      DefaultBaseURL,
-		httpClient:   http.DefaultClient,
+		Organization:     organization,
+		BaseURL:          DefaultBaseURL,
+		httpClient:       http.DefaultClient,
+		maxResponseBytes: DefaultMaxResponseBytes,
+		userAgent:        defaultUserAgent,
+		requestTimeout:   DefaultRequestTimeout,
 	}
 
 	// Apply options
