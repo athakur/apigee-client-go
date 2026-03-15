@@ -64,13 +64,10 @@ func (c *Client) doRequest(req *http.Request) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	limitedReader := io.LimitReader(resp.Body, c.maxResponseBytes+1)
-	body, err := io.ReadAll(limitedReader)
+	resp.Body = http.MaxBytesReader(nil, resp.Body, c.maxResponseBytes)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("apigee: failed to read response body: %w", err)
-	}
-	if int64(len(body)) > c.maxResponseBytes {
-		return nil, fmt.Errorf("apigee: response body exceeds maximum allowed size of %d bytes", c.maxResponseBytes)
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {

@@ -20,8 +20,8 @@ const (
 	// DefaultMaxResponseBytes is the maximum response body size (10 MB).
 	DefaultMaxResponseBytes int64 = 10 * 1024 * 1024
 
-	// defaultUserAgent is the User-Agent header sent with all requests.
-	defaultUserAgent = "apigee-client-go"
+	// DefaultUserAgent is the User-Agent header sent with all requests.
+	DefaultUserAgent = "apigee-client-go"
 
 	// DefaultRequestTimeout is the default per-request timeout.
 	// It applies when the caller's context has no deadline.
@@ -95,7 +95,7 @@ func NewClient(ctx context.Context, organization string, opts ...ClientOption) (
 		BaseURL:          DefaultBaseURL,
 		httpClient:       http.DefaultClient,
 		maxResponseBytes: DefaultMaxResponseBytes,
-		userAgent:        defaultUserAgent,
+		userAgent:        DefaultUserAgent,
 		requestTimeout:   DefaultRequestTimeout,
 	}
 
